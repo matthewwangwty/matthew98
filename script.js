@@ -8,35 +8,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     
     // Desktop Icon Logic
-    const paintIcon = document.getElementById('paint-icon');
+    const desktopIcons = document.querySelectorAll('.desktop-icon');
     const paintWindow = document.getElementById('blank-window');
     const taskbarPaintBtn = document.getElementById('taskbar-paint');
     const closeBtn = paintWindow.querySelector('button[aria-label="Close"]');
     const minimizeBtn = paintWindow.querySelector('button[aria-label="Minimize"]');
     
     // Select icon on click
-    paintIcon.addEventListener('mousedown', () => {
-        paintIcon.classList.add('selected');
+    desktopIcons.forEach(icon => {
+        icon.addEventListener('mousedown', (e) => {
+            desktopIcons.forEach(i => i.classList.remove('selected'));
+            icon.classList.add('selected');
+            e.stopPropagation(); // prevent desktop click from immediately deselecting
+        });
+
+        // Double click logic
+        icon.addEventListener('dblclick', () => {
+            if (icon.id === 'paint-icon') {
+                paintWindow.style.display = 'flex';
+                taskbarPaintBtn.style.display = 'flex';
+                // Bring to front
+                paintWindow.style.zIndex = 100;
+                taskbarPaintBtn.classList.add('active');
+                // trigger resize observer fix by tweaking size slightly
+                const width = parseInt(paintWindow.style.width);
+                paintWindow.style.width = width + 1 + 'px';
+                setTimeout(() => { paintWindow.style.width = width + 'px'; }, 10);
+            } else if (icon.id === 'ie-icon') {
+                window.open('https://www.linkedin.com/in/matthewwangwty/', '_blank');
+            } else if (icon.id === 'github-icon') {
+                window.open('https://github.com/matthewwangwty', '_blank');
+            }
+        });
     });
     
-    // Deselect if clicking desktop (outside icon)
+    // Deselect if clicking desktop (outside icons)
     document.getElementById('desktop').addEventListener('mousedown', (e) => {
-        if (!paintIcon.contains(e.target)) {
-            paintIcon.classList.remove('selected');
-        }
-    });
-
-    // Open on double click
-    paintIcon.addEventListener('dblclick', () => {
-        paintWindow.style.display = 'flex';
-        taskbarPaintBtn.style.display = 'flex';
-        // Bring to front
-        paintWindow.style.zIndex = 100;
-        taskbarPaintBtn.classList.add('active');
-        // trigger resize observer fix by tweaking size slightly
-        const width = parseInt(paintWindow.style.width);
-        paintWindow.style.width = width + 1 + 'px';
-        setTimeout(() => { paintWindow.style.width = width + 'px'; }, 10);
+        desktopIcons.forEach(icon => icon.classList.remove('selected'));
     });
 
     // Close button logic
