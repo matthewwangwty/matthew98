@@ -211,7 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'Brush': 'brush',
         'Eraser': 'eraser',
         'Airbrush': 'airbrush',
-        'Pick Color': 'eyedropper'
+        'Pick Color': 'eyedropper',
+        'Fill': 'fill'
     };
 
     // Tools that draw on the canvas
@@ -295,6 +296,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Function to resize the canvas's internal drawing buffer to match its display size
         // This prevents the drawing from being stretched or blurry when the window scales
         const resizeCanvas = () => {
+            // Skip resize when the window is hidden/minimized (wrapper collapses to 0x0)
+            const rect = canvasWrapper.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
+
             // Save the current drawing data
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
@@ -305,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Update internal dimensions
-            const rect = canvasWrapper.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
 
@@ -426,6 +430,102 @@ document.addEventListener('DOMContentLoaded', () => {
             return primaryColor;
         };
 
+        // Flood fill (bucket tool) — scanline algorithm for performance
+        const floodFill = (startX, startY, fillColor) => {
+            const w = canvas.width;
+            const h = canvas.height;
+            const imageData = ctx.getImageData(0, 0, w, h);
+            const data = imageData.data;
+
+            // Parse fill color to RGB
+            const tempEl = document.createElement('div');
+            tempEl.style.color = fillColor;
+            document.body.appendChild(tempEl);
+            const computed = getComputedStyle(tempEl).color;
+            document.body.removeChild(tempEl);
+            const rgbMatch = computed.match(/\d+/g);
+            const fillR = parseInt(rgbMatch[0]);
+            const fillG = parseInt(rgbMatch[1]);
+            const fillB = parseInt(rgbMatch[2]);
+
+            // Get the color at the clicked pixel
+            const idx = (startY * w + startX) * 4;
+            const targetR = data[idx];
+            const targetG = data[idx + 1];
+            const targetB = data[idx + 2];
+            const targetA = data[idx + 3];
+
+            // Don't fill if the target color is already the fill color
+            if (targetR === fillR && targetG === fillG && targetB === fillB) return;
+
+            const tolerance = 0; // Exact match
+            const matchesTarget = (i) => {
+                return Math.abs(data[i] - targetR) <= tolerance &&
+                       Math.abs(data[i + 1] - targetG) <= tolerance &&
+                       Math.abs(data[i + 2] - targetB) <= tolerance &&
+                       Math.abs(data[i + 3] - targetA) <= tolerance;
+            };
+
+            const setPixel = (i) => {
+                data[i] = fillR;
+                data[i + 1] = fillG;
+                data[i + 2] = fillB;
+                data[i + 3] = 255;
+            };
+
+            // Scanline flood fill
+            const stack = [[startX, startY]];
+            while (stack.length > 0) {
+                let [x, y] = stack.pop();
+                let i = (y * w + x) * 4;
+
+                // Move up to the topmost matching pixel in this column
+                while (y >= 0 && matchesTarget(i)) {
+                    y--;
+                    i -= w * 4;
+                }
+                y++;
+                i += w * 4;
+
+                let reachLeft = false;
+                let reachRight = false;
+
+                // Scan downward
+                while (y < h && matchesTarget(i)) {
+                    setPixel(i);
+
+                    // Check left
+                    if (x > 0) {
+                        if (matchesTarget(i - 4)) {
+                            if (!reachLeft) {
+                                stack.push([x - 1, y]);
+                                reachLeft = true;
+                            }
+                        } else {
+                            reachLeft = false;
+                        }
+                    }
+
+                    // Check right
+                    if (x < w - 1) {
+                        if (matchesTarget(i + 4)) {
+                            if (!reachRight) {
+                                stack.push([x + 1, y]);
+                                reachRight = true;
+                            }
+                        } else {
+                            reachRight = false;
+                        }
+                    }
+
+                    y++;
+                    i += w * 4;
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        };
+
         // Airbrush spray interval reference
         let sprayInterval = null;
 
@@ -435,6 +535,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentTool === 'eyedropper') {
                 const pos = getCanvasPos(e);
                 pickColor(Math.floor(pos.x), Math.floor(pos.y), e.button === 2);
+                return;
+            }
+
+            // Fill (bucket) tool
+            if (currentTool === 'fill') {
+                const pos = getCanvasPos(e);
+                const color = (e.button === 2) ? secondaryColor : primaryColor;
+                floodFill(Math.floor(pos.x), Math.floor(pos.y), color);
                 return;
             }
 
