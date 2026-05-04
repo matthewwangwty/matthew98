@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Windows 98 Website</title>
+    <title>Matthew98</title>
     <!-- Import 98.css from unpkg -->
     <link rel="stylesheet" href="https://unpkg.com/98.css" />
     <!-- Link to custom styles -->
@@ -13,18 +13,91 @@
     <div id="desktop">
         <!-- Desktop icons will go here -->
         
-        <!-- Example Window -->
-        <div class="window draggable-window" style="width: 300px; position: absolute; top: 50px; left: 50px;" id="sample-window">
+        <!-- Blank Window -->
+        <div class="window draggable-window" style="width: 600px; height: 800px; position: absolute; top: 50px; left: 50px; display: flex; flex-direction: column;" id="blank-window">
+            <div class="resize-handle n"></div>
+            <div class="resize-handle s"></div>
+            <div class="resize-handle e"></div>
+            <div class="resize-handle w"></div>
+            <div class="resize-handle ne"></div>
+            <div class="resize-handle nw"></div>
+            <div class="resize-handle se"></div>
+            <div class="resize-handle sw"></div>
             <div class="title-bar">
-                <div class="title-bar-text">Welcome</div>
+                <div class="title-bar-text">Greetings!</div>
                 <div class="title-bar-controls">
                     <button aria-label="Minimize"></button>
                     <button aria-label="Maximize"></button>
                     <button aria-label="Close"></button>
                 </div>
             </div>
-            <div class="window-body">
-                <p>Welcome to my personal website!</p>
+            <div class="window-body" style="flex: 1; margin: 0; display: flex; flex-direction: column; background-color: #c0c0c0; border: none; box-shadow: none; min-height: 0; min-width: 0; overflow: hidden;">
+                <!-- Menu Bar -->
+                <div class="menu-bar">
+                    <span>File</span><span>Edit</span><span>View</span><span>Image</span><span>Colors</span><span>Help</span>
+                </div>
+
+                <!-- Main Workspace -->
+                <div class="workspace" style="display: flex; flex: 1; overflow: hidden; padding-top: 2px; min-height: 0; min-width: 0;">
+                    <!-- Toolbar (Left) -->
+                    <div class="toolbar" style="width: 54px; padding: 2px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 0;">
+                        <!-- 16 standard MS paint tools -->
+                        <button class="tool-btn active" title="Free-Form Select"><div class="icon" style="background-position: 0px 0px;"></div></button>
+                        <button class="tool-btn" title="Select"><div class="icon" style="background-position: -16px 0px;"></div></button>
+                        <button class="tool-btn" title="Eraser"><div class="icon" style="background-position: -32px 0px;"></div></button>
+                        <button class="tool-btn" title="Fill"><div class="icon" style="background-position: -48px 0px;"></div></button>
+                        <button class="tool-btn" title="Pick Color"><div class="icon" style="background-position: -64px 0px;"></div></button>
+                        <button class="tool-btn" title="Magnifier"><div class="icon" style="background-position: -80px 0px;"></div></button>
+                        <button class="tool-btn" title="Pencil"><div class="icon" style="background-position: -96px 0px;"></div></button>
+                        <button class="tool-btn" title="Brush"><div class="icon" style="background-position: -112px 0px;"></div></button>
+                        <button class="tool-btn" title="Airbrush"><div class="icon" style="background-position: -128px 0px;"></div></button>
+                        <button class="tool-btn" title="Text"><div class="icon" style="background-position: -144px 0px;"></div></button>
+                        <button class="tool-btn" title="Line"><div class="icon" style="background-position: -160px 0px;"></div></button>
+                        <button class="tool-btn" title="Curve"><div class="icon" style="background-position: -176px 0px;"></div></button>
+                        <button class="tool-btn" title="Rectangle"><div class="icon" style="background-position: -192px 0px;"></div></button>
+                        <button class="tool-btn" title="Polygon"><div class="icon" style="background-position: -208px 0px;"></div></button>
+                        <button class="tool-btn" title="Ellipse"><div class="icon" style="background-position: -224px 0px;"></div></button>
+                        <button class="tool-btn" title="Rounded Rectangle"><div class="icon" style="background-position: -240px 0px;"></div></button>
+                        
+                        <!-- Tool Options -->
+                        <div class="tool-options" style="margin-top: 4px; height: 60px; width: 48px; background: #fff; border: 1px solid #808080; border-right-color: #fff; border-bottom-color: #fff; box-shadow: inset 1px 1px #0a0a0a;">
+                        </div>
+                    </div>
+
+                    <!-- Canvas Area -->
+                    <div class="canvas-container" style="flex: 1; padding: 3px; background-color: #808080; overflow: auto; display: flex; min-height: 0; min-width: 0;">
+                        <!-- The wrapper scales with flex: 1 to fill space, providing the classic canvas feel -->
+                        <div class="canvas-wrapper" style="background-color: #fff; border: 1px solid #000; box-shadow: 1px 1px #fff; flex: 1; position: relative; min-height: 0; min-width: 0; overflow: hidden;">
+                            <canvas id="paint-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Color Palette (Bottom) -->
+                <div class="color-palette" style="height: 46px; padding: 4px 2px; display: flex; border-top: 1px solid #dfdfdf;">
+                    <div class="current-colors" style="width: 32px; height: 32px; border: 1px solid #808080; border-right-color: #fff; border-bottom-color: #fff; box-shadow: inset 1px 1px #0a0a0a; position: relative; margin-right: 4px; background: #c0c0c0;">
+                        <div class="color secondary" style="width: 14px; height: 14px; background-color: white; border: 1px solid #808080; border-right-color: #fff; border-bottom-color: #fff; position: absolute; bottom: 3px; right: 3px; z-index: 1; box-shadow: inset 1px 1px #0a0a0a;"></div>
+                        <div class="color primary" style="width: 14px; height: 14px; background-color: black; border: 1px solid #808080; border-right-color: #fff; border-bottom-color: #fff; position: absolute; top: 3px; left: 3px; z-index: 2; box-shadow: inset 1px 1px #0a0a0a;"></div>
+                    </div>
+                    <div class="color-grid" style="display: grid; grid-template-columns: repeat(14, 15px); grid-template-rows: 15px 15px; gap: 0;">
+                        <!-- Top Row -->
+                        <div class="color-swatch" style="background-color: #000000;"></div><div class="color-swatch" style="background-color: #808080;"></div>
+                        <div class="color-swatch" style="background-color: #800000;"></div><div class="color-swatch" style="background-color: #808000;"></div>
+                        <div class="color-swatch" style="background-color: #008000;"></div><div class="color-swatch" style="background-color: #008080;"></div>
+                        <div class="color-swatch" style="background-color: #000080;"></div><div class="color-swatch" style="background-color: #800080;"></div>
+                        <div class="color-swatch" style="background-color: #808040;"></div><div class="color-swatch" style="background-color: #004040;"></div>
+                        <div class="color-swatch" style="background-color: #0080FF;"></div><div class="color-swatch" style="background-color: #004080;"></div>
+                        <div class="color-swatch" style="background-color: #8000FF;"></div><div class="color-swatch" style="background-color: #804000;"></div>
+                        <!-- Bottom Row -->
+                        <div class="color-swatch" style="background-color: #FFFFFF;"></div><div class="color-swatch" style="background-color: #C0C0C0;"></div>
+                        <div class="color-swatch" style="background-color: #FF0000;"></div><div class="color-swatch" style="background-color: #FFFF00;"></div>
+                        <div class="color-swatch" style="background-color: #00FF00;"></div><div class="color-swatch" style="background-color: #00FFFF;"></div>
+                        <div class="color-swatch" style="background-color: #0000FF;"></div><div class="color-swatch" style="background-color: #FF00FF;"></div>
+                        <div class="color-swatch" style="background-color: #FFFF80;"></div><div class="color-swatch" style="background-color: #00FF80;"></div>
+                        <div class="color-swatch" style="background-color: #80FFFF;"></div><div class="color-swatch" style="background-color: #8080FF;"></div>
+                        <div class="color-swatch" style="background-color: #FF0080;"></div><div class="color-swatch" style="background-color: #FF8040;"></div>
+                    </div>
+                </div>
             </div>
         </div>
 

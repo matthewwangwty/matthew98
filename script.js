@@ -4,31 +4,156 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Windows 98 environment initialized.");
 
     // ==========================================
-    // 1. Window Management & Dragging
+    // 1. Window Management, Dragging & Resizing
     // ==========================================
     
-    // Variables for tracking window drag state
-    let isDragging = false;
-    let activeWindow = null;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
+    // Setup logic for all draggable windows
+    const windows = document.querySelectorAll('.draggable-window');
+    
+    windows.forEach(win => {
+        const titleBar = win.querySelector('.title-bar');
+        titleBar.style.cursor = 'default'; // Let the system feel classic, but we make it drag
+        
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
 
-    // We will attach event listeners for window dragging here later
-    // The typical logic:
-    // - mousedown on .title-bar: start dragging
-    // - mousemove on document: update active window position
-    // - mouseup on document: stop dragging
+        // Window Dragging
+        titleBar.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            const rect = win.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            
+            // Bring to front
+            windows.forEach(w => w.style.zIndex = 10);
+            win.style.zIndex = 100;
+        });
+
+        // Resizing Logic
+        const resizeHandles = win.querySelectorAll('.resize-handle');
+        let isResizing = false;
+        let currentHandle = null;
+        let startX, startY, startWidth, startHeight, startTop, startLeft;
+
+        resizeHandles.forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                isResizing = true;
+                currentHandle = handle.className.split(' ')[1]; // gets 'n', 's', 'e', 'w', etc.
+                startX = e.clientX;
+                startY = e.clientY;
+                const rect = win.getBoundingClientRect();
+                startWidth = rect.width;
+                startHeight = rect.height;
+                startTop = rect.top;
+                startLeft = rect.left;
+                
+                // Bring to front
+                windows.forEach(w => w.style.zIndex = 10);
+                win.style.zIndex = 100;
+                e.preventDefault(); // Prevent text selection
+            });
+        });
+
+        // Global mouse movement for both drag and resize
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                win.style.left = `${e.clientX - dragOffsetX}px`;
+                win.style.top = `${e.clientY - dragOffsetY}px`;
+            }
+            
+            if (isResizing) {
+                const minWidth = 320;
+                const minHeight = 400;
+
+                if (currentHandle.includes('e')) {
+                    let newWidth = startWidth + (e.clientX - startX);
+                    if (newWidth > minWidth) win.style.width = `${newWidth}px`;
+                }
+                if (currentHandle.includes('s')) {
+                    let newHeight = startHeight + (e.clientY - startY);
+                    if (newHeight > minHeight) win.style.height = `${newHeight}px`;
+                }
+                if (currentHandle.includes('w')) {
+                    let newWidth = startWidth - (e.clientX - startX);
+                    if (newWidth > minWidth) {
+                        win.style.width = `${newWidth}px`;
+                        win.style.left = `${startLeft + (e.clientX - startX)}px`;
+                    }
+                }
+                if (currentHandle.includes('n')) {
+                    let newHeight = startHeight - (e.clientY - startY);
+                    if (newHeight > minHeight) {
+                        win.style.height = `${newHeight}px`;
+                        win.style.top = `${startTop + (e.clientY - startY)}px`;
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            isResizing = false;
+            currentHandle = null;
+        });
+    });
 
     // ==========================================
     // 2. Canvas & MS Paint functionality
     // ==========================================
     
-    // We will build functionality to spawn new MS Paint windows with canvas
-    // Canvas logic structure:
-    // - A container for the tools
-    // - A <canvas> element
-    // - Variables for tool state (e.g. pencil, fill, color picker)
-    // - Event listeners on canvas for mousedown, mousemove, mouseup to draw
+    // Tool Selection Logic
+    const toolBtns = document.querySelectorAll('.tool-btn');
+    toolBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Remove active class from all tool buttons
+            toolBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to the clicked button
+            btn.classList.add('active');
+        });
+    });
+
+    const canvas = document.getElementById('paint-canvas');
+    const canvasWrapper = document.querySelector('.canvas-wrapper');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
+    if (canvas && canvasWrapper) {
+        // Function to resize the canvas's internal drawing buffer to match its display size
+        // This prevents the drawing from being stretched or blurry when the window scales
+        const resizeCanvas = () => {
+            // Save the current drawing data
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            if (canvas.width > 0 && canvas.height > 0) {
+                tempCtx.drawImage(canvas, 0, 0);
+            }
+
+            // Update internal dimensions
+            const rect = canvasWrapper.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            // Fill with white background by default
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Restore the drawing data (optional, depends on if we want to scale or crop. MS paint crops)
+            if (tempCanvas.width > 0 && tempCanvas.height > 0) {
+                ctx.drawImage(tempCanvas, 0, 0);
+            }
+        };
+
+        // Resize observer to handle window resizing
+        const observer = new ResizeObserver(() => {
+            resizeCanvas();
+        });
+        observer.observe(canvasWrapper);
+
+        // Initial setup
+        resizeCanvas();
+    }
 
     // ==========================================
     // 3. Taskbar & Start Menu

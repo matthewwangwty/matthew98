@@ -12,7 +12,7 @@ body, html {
     width: 100vw;
     height: 100vh;
     background-color: #008080; /* Classic Windows 98 Teal Desktop Background */
-    /* background-image: url('wallpaper.jpg'); */ /* Uncomment and set path when adding a custom wallpaper */
+    background-image: url('assets/test_background.png');
     background-size: cover;
     background-position: center;
     position: relative;
@@ -57,4 +57,81 @@ body, html {
 
 .draggable-window .title-bar {
     cursor: default; /* We will change this to 'move' via JS later when implementing dragging */
+}
+
+/* Resize handles */
+.resize-handle {
+    position: absolute;
+    z-index: 100;
+}
+.resize-handle.n { top: -4px; left: 0; right: 0; height: 8px; cursor: n-resize; }
+.resize-handle.s { bottom: -4px; left: 0; right: 0; height: 8px; cursor: s-resize; }
+.resize-handle.e { top: 0; bottom: 0; right: -4px; width: 8px; cursor: e-resize; }
+.resize-handle.w { top: 0; bottom: 0; left: -4px; width: 8px; cursor: w-resize; }
+.resize-handle.ne { top: -4px; right: -4px; width: 12px; height: 12px; cursor: ne-resize; z-index: 101; }
+.resize-handle.nw { top: -4px; left: -4px; width: 12px; height: 12px; cursor: nw-resize; z-index: 101; }
+.resize-handle.se { bottom: -4px; right: -4px; width: 12px; height: 12px; cursor: se-resize; z-index: 101; }
+.resize-handle.sw { bottom: -4px; left: -4px; width: 12px; height: 12px; cursor: sw-resize; z-index: 101; }
+
+/* MS Paint UI Styles */
+.menu-bar {
+    padding: 2px 4px;
+    display: flex;
+    gap: 12px;
+    border-bottom: 1px solid #dfdfdf;
+    font-size: 11px;
+}
+.menu-bar span {
+    cursor: default;
+    padding: 1px 4px;
+}
+.menu-bar span:hover {
+    background-color: #000080;
+    color: #fff;
+}
+.menu-bar span:first-letter {
+    text-decoration: underline;
+}
+
+.tool-btn {
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
+    padding: 0;
+    margin: 0;
+    background-color: #c0c0c0;
+    border: 1px solid #dfdfdf;
+    border-bottom-color: #808080;
+    border-right-color: #808080;
+    box-shadow: inset 1px 1px #fff, inset -1px -1px #0a0a0a;
+}
+.tool-btn:active, .tool-btn.active {
+    border: 1px solid #808080;
+    border-bottom-color: #dfdfdf;
+    border-right-color: #dfdfdf;
+    box-shadow: inset 1px 1px #0a0a0a, inset -1px -1px #fff;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACAQMAAABIeJ9nAAAABlBMVEUAAAD///+l2Z/dAAAAAXRSTlMAQObYZgAAAAxJREFUCNdjYGBgAAABAAAADA9UTQAAAABJRU5ErkJggg==') repeat;
+}
+
+.tool-btn .icon {
+    width: 16px;
+    height: 16px;
+    margin: 3px auto;
+    background-image: url('assets/tools.png');
+    pointer-events: none; /* Let clicks pass through to the button */
+}
+
+/* Offset the icon slightly down and right when the button is active to simulate pressing */
+.tool-btn:active .icon, .tool-btn.active .icon {
+    transform: translate(1px, 1px);
+}
+
+.color-swatch {
+    width: 15px;
+    height: 15px;
+    box-sizing: border-box;
+    border: 1px solid #808080;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+    box-shadow: inset 1px 1px #0a0a0a;
 }
