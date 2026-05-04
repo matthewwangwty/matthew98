@@ -128,6 +128,15 @@ body, html {
     transform: translate(1px, 1px);
 }
 
+/* Disabled (unimplemented) tool buttons */
+.tool-btn.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.tool-btn.disabled .icon {
+    opacity: 0.35;
+}
+
 .color-swatch {
     width: 15px;
     height: 15px;
@@ -179,4 +188,29 @@ body, html {
     min-width: 150px;
     justify-content: flex-start;
     font-weight: bold;
+}
+
+/* Size Option Selectors */
+.size-option {
+    cursor: pointer;
+    opacity: 0.4;
+}
+.size-option.selected {
+    opacity: 1;
+    outline: 1px dotted #000;
+    outline-offset: 2px;
+}
+
+/* Color Swatch interactivity */
+.color-swatch {
+    cursor: pointer;
+}
+.color-swatch:hover {
+    outline: 1px solid #fff;
+    outline-offset: -1px;
+}
+
+/* Canvas cursor */
+#paint-canvas {
+    cursor: crosshair;
 }

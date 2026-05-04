@@ -54,25 +54,29 @@
                     <!-- Toolbar (Left) -->
                     <div class="toolbar" style="width: 54px; padding: 2px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 0;">
                         <!-- 16 standard MS paint tools -->
-                        <button class="tool-btn active" title="Free-Form Select"><div class="icon" style="background-position: 0px 0px;"></div></button>
-                        <button class="tool-btn" title="Select"><div class="icon" style="background-position: -16px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Free-Form Select"><div class="icon" style="background-position: 0px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Select"><div class="icon" style="background-position: -16px 0px;"></div></button>
                         <button class="tool-btn" title="Eraser"><div class="icon" style="background-position: -32px 0px;"></div></button>
-                        <button class="tool-btn" title="Fill"><div class="icon" style="background-position: -48px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Fill"><div class="icon" style="background-position: -48px 0px;"></div></button>
                         <button class="tool-btn" title="Pick Color"><div class="icon" style="background-position: -64px 0px;"></div></button>
-                        <button class="tool-btn" title="Magnifier"><div class="icon" style="background-position: -80px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Magnifier"><div class="icon" style="background-position: -80px 0px;"></div></button>
                         <button class="tool-btn" title="Pencil"><div class="icon" style="background-position: -96px 0px;"></div></button>
                         <button class="tool-btn" title="Brush"><div class="icon" style="background-position: -112px 0px;"></div></button>
                         <button class="tool-btn" title="Airbrush"><div class="icon" style="background-position: -128px 0px;"></div></button>
-                        <button class="tool-btn" title="Text"><div class="icon" style="background-position: -144px 0px;"></div></button>
-                        <button class="tool-btn" title="Line"><div class="icon" style="background-position: -160px 0px;"></div></button>
-                        <button class="tool-btn" title="Curve"><div class="icon" style="background-position: -176px 0px;"></div></button>
-                        <button class="tool-btn" title="Rectangle"><div class="icon" style="background-position: -192px 0px;"></div></button>
-                        <button class="tool-btn" title="Polygon"><div class="icon" style="background-position: -208px 0px;"></div></button>
-                        <button class="tool-btn" title="Ellipse"><div class="icon" style="background-position: -224px 0px;"></div></button>
-                        <button class="tool-btn" title="Rounded Rectangle"><div class="icon" style="background-position: -240px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Text"><div class="icon" style="background-position: -144px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Line"><div class="icon" style="background-position: -160px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Curve"><div class="icon" style="background-position: -176px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Rectangle"><div class="icon" style="background-position: -192px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Polygon"><div class="icon" style="background-position: -208px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Ellipse"><div class="icon" style="background-position: -224px 0px;"></div></button>
+                        <button class="tool-btn disabled" title="Rounded Rectangle"><div class="icon" style="background-position: -240px 0px;"></div></button>
                         
-                        <!-- Tool Options -->
-                        <div class="tool-options" style="margin-top: 4px; height: 60px; width: 48px; background: #fff; border: 1px solid #808080; border-right-color: #fff; border-bottom-color: #fff; box-shadow: inset 1px 1px #0a0a0a;">
+                        <!-- Tool Options (size selectors for brush/eraser) -->
+                        <div class="tool-options" id="tool-options" style="margin-top: 4px; height: 80px; width: 48px; background: #fff; border: 1px solid #808080; border-right-color: #fff; border-bottom-color: #fff; box-shadow: inset 1px 1px #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+                            <div class="size-option selected" data-size="2" style="width: 8px; height: 8px; background: #000; border-radius: 50%;"></div>
+                            <div class="size-option" data-size="5" style="width: 12px; height: 12px; background: #000; border-radius: 50%;"></div>
+                            <div class="size-option" data-size="8" style="width: 16px; height: 16px; background: #000; border-radius: 50%;"></div>
+                            <div class="size-option" data-size="14" style="width: 20px; height: 20px; background: #000; border-radius: 50%;"></div>
                         </div>
                     </div>
 
