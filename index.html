@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Windows 98 Website</title>
+    <!-- Import 98.css from unpkg -->
+    <link rel="stylesheet" href="https://unpkg.com/98.css" />
+    <!-- Link to custom styles -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="desktop">
+        <!-- Desktop icons will go here -->
+        
+        <!-- Example Window -->
+        <div class="window draggable-window" style="width: 300px; position: absolute; top: 50px; left: 50px;" id="sample-window">
+            <div class="title-bar">
+                <div class="title-bar-text">Welcome</div>
+                <div class="title-bar-controls">
+                    <button aria-label="Minimize"></button>
+                    <button aria-label="Maximize"></button>
+                    <button aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="window-body">
+                <p>Welcome to my personal website!</p>
+            </div>
+        </div>
+
+        <!-- Taskbar -->
+        <div class="taskbar">
+            <button class="start-button">
+                <img src="https://win98icons.alexmeub.com/icons/png/windows_slanted-1.png" alt="Start" style="width: 16px; height: 16px; margin-right: 4px;">
+                Start
+            </button>
+            <div class="taskbar-divider"></div>
+            <!-- Open windows buttons will appear here -->
+        </div>
+    </div>
+
+    <!-- Link to Javascript -->
+    <script src="script.js"></script>
+</body>
+</html>

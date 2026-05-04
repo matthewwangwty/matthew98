@@ -1,0 +1,60 @@
+/* style.css */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevent scrolling on the desktop itself */
+    font-family: "Pixelated MS Sans Serif", Arial, sans-serif;
+}
+
+#desktop {
+    width: 100vw;
+    height: 100vh;
+    background-color: #008080; /* Classic Windows 98 Teal Desktop Background */
+    /* background-image: url('wallpaper.jpg'); */ /* Uncomment and set path when adding a custom wallpaper */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.taskbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    background-color: #c0c0c0;
+    border-top: 1px solid #dfdfdf;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    box-sizing: border-box;
+    z-index: 10000;
+}
+
+.start-button {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 4px;
+}
+
+.taskbar-divider {
+    width: 2px;
+    height: 20px;
+    background-color: #808080;
+    border-right: 1px solid #ffffff;
+    margin: 0 4px;
+}
+
+/* Base styles for draggable windows */
+.draggable-window {
+    box-shadow: 1px 1px 0 #000;
+}
+
+.draggable-window .title-bar {
+    cursor: default; /* We will change this to 'move' via JS later when implementing dragging */
+}
