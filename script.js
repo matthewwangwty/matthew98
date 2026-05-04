@@ -7,6 +7,69 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Window Management, Dragging & Resizing
     // ==========================================
     
+    // Desktop Icon Logic
+    const paintIcon = document.getElementById('paint-icon');
+    const paintWindow = document.getElementById('blank-window');
+    const taskbarPaintBtn = document.getElementById('taskbar-paint');
+    const closeBtn = paintWindow.querySelector('button[aria-label="Close"]');
+    const minimizeBtn = paintWindow.querySelector('button[aria-label="Minimize"]');
+    
+    // Select icon on click
+    paintIcon.addEventListener('mousedown', () => {
+        paintIcon.classList.add('selected');
+    });
+    
+    // Deselect if clicking desktop (outside icon)
+    document.getElementById('desktop').addEventListener('mousedown', (e) => {
+        if (!paintIcon.contains(e.target)) {
+            paintIcon.classList.remove('selected');
+        }
+    });
+
+    // Open on double click
+    paintIcon.addEventListener('dblclick', () => {
+        paintWindow.style.display = 'flex';
+        taskbarPaintBtn.style.display = 'flex';
+        // Bring to front
+        paintWindow.style.zIndex = 100;
+        taskbarPaintBtn.classList.add('active');
+        // trigger resize observer fix by tweaking size slightly
+        const width = parseInt(paintWindow.style.width);
+        paintWindow.style.width = width + 1 + 'px';
+        setTimeout(() => { paintWindow.style.width = width + 'px'; }, 10);
+    });
+
+    // Close button logic
+    closeBtn.addEventListener('click', () => {
+        paintWindow.style.display = 'none';
+        taskbarPaintBtn.style.display = 'none';
+    });
+
+    // Minimize button logic
+    minimizeBtn.addEventListener('click', () => {
+        paintWindow.style.display = 'none';
+        taskbarPaintBtn.classList.remove('active');
+    });
+
+    // Taskbar toggle logic
+    taskbarPaintBtn.addEventListener('click', () => {
+        if (paintWindow.style.display === 'none') {
+            paintWindow.style.display = 'flex';
+            paintWindow.style.zIndex = 100;
+            taskbarPaintBtn.classList.add('active');
+        } else {
+            if (paintWindow.style.zIndex == 100) {
+                // Currently focused, so minimize
+                paintWindow.style.display = 'none';
+                taskbarPaintBtn.classList.remove('active');
+            } else {
+                // Open but not focused, bring to front
+                paintWindow.style.zIndex = 100;
+                taskbarPaintBtn.classList.add('active');
+            }
+        }
+    });
+
     // Setup logic for all draggable windows
     const windows = document.querySelectorAll('.draggable-window');
     

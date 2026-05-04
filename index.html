@@ -11,10 +11,14 @@
 </head>
 <body>
     <div id="desktop">
-        <!-- Desktop icons will go here -->
+        <!-- Desktop icons -->
+        <div class="desktop-icon" id="paint-icon">
+            <img src="assets/paint.png" alt="MS Paint">
+            <span>Paint</span>
+        </div>
         
         <!-- Blank Window -->
-        <div class="window draggable-window" style="width: 600px; height: 800px; position: absolute; top: 50px; left: 50px; display: flex; flex-direction: column;" id="blank-window">
+        <div class="window draggable-window" style="width: 600px; height: 800px; position: absolute; top: 50px; left: 50px; display: none; flex-direction: column;" id="blank-window">
             <div class="resize-handle n"></div>
             <div class="resize-handle s"></div>
             <div class="resize-handle e"></div>
@@ -109,6 +113,10 @@
             </button>
             <div class="taskbar-divider"></div>
             <!-- Open windows buttons will appear here -->
+            <button class="taskbar-window-btn active" id="taskbar-paint" style="display: none;">
+                <img src="assets/paint.png" alt="MS Paint" style="width: 16px; height: 16px; margin-right: 4px;">
+                Greetings!
+            </button>
         </div>
     </div>
 
