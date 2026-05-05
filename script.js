@@ -977,7 +977,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         'D:': {
-            label: 'Archive (D:)',
+            label: 'Art (D:)',
             folders: []
         }
     };
