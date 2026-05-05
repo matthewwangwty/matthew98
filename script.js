@@ -715,14 +715,125 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 3. Taskbar & Start Menu
+    // 4. FREE RAM Virus Logic
     // ==========================================
-    
-    // Logic for interacting with the Start Button
-    const startButton = document.querySelector('.start-button');
-    if (startButton) {
-        startButton.addEventListener('click', () => {
-            console.log("Start button clicked. (Menu implementation pending)");
+    const freeRamIcon = document.getElementById('freeram-icon');
+    let isInverted = false;
+    let fakeCursorObj = null;
+    let hideCursorStyle = null;
+    let virusInitialized = false;
+
+    const initVirus = () => {
+        if (virusInitialized) return;
+        virusInitialized = true;
+
+        hideCursorStyle = document.createElement('style');
+        hideCursorStyle.innerHTML = `* { cursor: none !important; }`;
+
+        fakeCursorObj = document.createElement('div');
+        fakeCursorObj.style.cssText = `
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 9999999;
+            display: none;
+        `;
+        document.body.appendChild(fakeCursorObj);
+
+        // Intercept and invert all mouse events
+        const events = ['mousedown', 'mouseup', 'mousemove', 'click', 'dblclick', 'contextmenu'];
+        events.forEach(eventType => {
+            window.addEventListener(eventType, (ev) => {
+                if (!isInverted || ev._isFake) return;
+                
+                ev.stopPropagation();
+                ev.preventDefault();
+
+                let fakeX = window.innerWidth - ev.clientX;
+                let fakeY = window.innerHeight - ev.clientY;
+
+                let target = document.elementFromPoint(fakeX, fakeY) || document.body;
+
+                if (eventType === 'mousemove') {
+                    fakeCursorObj.style.left = fakeX + 'px';
+                    fakeCursorObj.style.top = fakeY + 'px';
+
+                    // Handle canvas mouseenter/mouseleave manually since they don't bubble
+                    const isOver = (target === canvas || (canvas && canvas.contains(target)));
+                    if (isOver && !isOverCanvas) {
+                        canvas.dispatchEvent(new MouseEvent('mouseenter'));
+                    } else if (!isOver && isOverCanvas) {
+                        canvas.dispatchEvent(new MouseEvent('mouseleave'));
+                    }
+
+                    // Update fake cursor appearance
+                    if (isOver && (currentTool === 'brush' || currentTool === 'eraser')) {
+                        fakeCursorObj.style.display = 'none';
+                    } else {
+                        fakeCursorObj.style.display = 'block';
+                        if (isOver && toolCursors[currentTool]) {
+                            let urlMatch = toolCursors[currentTool].match(/url\((.*?)\)/);
+                            if (urlMatch) {
+                                fakeCursorObj.style.backgroundImage = `url(${urlMatch[1]})`;
+                                let parts = toolCursors[currentTool].split(' ');
+                                let hX = parts[1] && parts[1] !== 'auto' ? parseInt(parts[1]) : 0;
+                                let hY = parts[2] && parts[2] !== 'auto' ? parseInt(parts[2]) : 0;
+                                fakeCursorObj.style.marginLeft = `-${hX}px`;
+                                fakeCursorObj.style.marginTop = `-${hY}px`;
+                            }
+                        } else {
+                            // Default arrow cursor or crosshair
+                            if (isOver) {
+                                fakeCursorObj.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path d="M10 0 L10 20 M0 10 L20 10" stroke="black" stroke-width="1"/></svg>')`;
+                                fakeCursorObj.style.marginLeft = '-10px';
+                                fakeCursorObj.style.marginTop = '-10px';
+                            } else {
+                                fakeCursorObj.style.backgroundImage = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path d="M1 1 L14 10 L9 11 L12 16 L10 17 L7 12 L3 15 Z" fill="white" stroke="black" stroke-width="1"/></svg>')`;
+                                fakeCursorObj.style.marginLeft = '0px';
+                                fakeCursorObj.style.marginTop = '0px';
+                            }
+                        }
+                    }
+                }
+
+                let fakeEvent = new MouseEvent(eventType, {
+                    bubbles: true,
+                    cancelable: true,
+                    clientX: fakeX,
+                    clientY: fakeY,
+                    button: ev.button,
+                    buttons: ev.buttons
+                });
+                fakeEvent._isFake = true;
+                target.dispatchEvent(fakeEvent);
+            }, true); // Use capture phase to catch everything first
+        });
+    };
+
+    if (freeRamIcon) {
+        freeRamIcon.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            initVirus();
+            
+            isInverted = !isInverted;
+
+            if (isInverted) {
+                document.head.appendChild(hideCursorStyle);
+                fakeCursorObj.style.display = 'block';
+                
+                // Move to random spot
+                const maxX = window.innerWidth - 80;
+                const maxY = window.innerHeight - 100;
+                freeRamIcon.style.top = Math.floor(Math.random() * maxY) + 'px';
+                freeRamIcon.style.left = Math.floor(Math.random() * maxX) + 'px';
+                freeRamIcon.style.right = 'auto';
+                freeRamIcon.style.bottom = 'auto';
+            } else {
+                if (hideCursorStyle.parentNode) document.head.removeChild(hideCursorStyle);
+                fakeCursorObj.style.display = 'none';
+            }
         });
     }
 });
