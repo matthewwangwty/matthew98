@@ -16,7 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const appRegistry = [
         { windowId: 'blank-window', iconSrc: 'assets/paint.png', title: 'Greetings!', desktopIconId: 'paint-icon', openByDefault: true },
         { windowId: 'notepad-window', iconSrc: 'assets/notepad.png', title: 'About Me', desktopIconId: 'notepad-icon', openByDefault: true },
-        { windowId: 'me-window', iconSrc: 'assets/camera.png', title: 'Me', desktopIconId: 'camera-icon', openByDefault: true }
+        { windowId: 'me-window', iconSrc: 'assets/camera.png', title: 'Me', desktopIconId: 'camera-icon', openByDefault: true },
+        { windowId: 'explorer-window', iconSrc: 'assets/explorer.png', title: 'Projects', desktopIconId: 'explorer-icon', openByDefault: false },
+        { windowId: 'file-viewer-window', iconSrc: 'assets/file.png', title: 'File Viewer', desktopIconId: null, openByDefault: false },
+        { windowId: 'file-text-window', iconSrc: 'assets/notepad.png', title: 'Text File', desktopIconId: null, openByDefault: false }
     ];
 
     // Track which apps are currently "open" (have taskbar presence)
@@ -156,6 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.open('https://www.linkedin.com/in/matthewwangwty/', '_blank');
             } else if (icon.id === 'github-icon') {
                 window.open('https://github.com/matthewwangwty', '_blank');
+            } else if (icon.id === 'recycle-icon') {
+                // Open explorer and navigate to Recycle Bin
+                currentDrive = 'recycle';
+                currentFolder = null;
+                buildTree();
+                renderFileList();
+                const explorerDef = appRegistry.find(a => a.windowId === 'explorer-window');
+                if (explorerDef) openApp(explorerDef);
             }
         });
     });
@@ -933,4 +944,250 @@ document.addEventListener('DOMContentLoaded', () => {
             scanlinesOverlay.style.display = crtEnabled ? 'block' : 'none';
         });
     }
+
+    // ==========================================
+    // 6. File Explorer
+    // ==========================================
+
+    // --- File type definitions (icon, extension, display name) ---
+    const fileTypeDefs = {
+        video:    { icon: 'assets/video.png',    ext: '.mpg',  typeName: 'Video Clip',     size: '1,024KB' },
+        image:    { icon: 'assets/file.png',     ext: '.jpeg', typeName: 'JPEG Image',     size: '256KB' },
+        text:     { icon: 'assets/file.png',     ext: '.txt',  typeName: 'Text Document',  size: '1KB' },
+        shortcut: { icon: 'assets/internet_explorer.png', ext: '',      typeName: 'Shortcut',       size: '1KB', overlay: 'assets/shortcut.png' },
+        folder:   { icon: 'assets/folder.png',   ext: '',      typeName: 'File Folder',    size: '' }
+    };
+
+    // --- Project data (ADD NEW PROJECTS HERE) ---
+    // Each drive has folders, each folder has files.
+    // File types: 'video', 'image', 'text', 'shortcut'
+    const projectData = {
+        'C:': {
+            label: 'Projects (C:)',
+            folders: [
+                {
+                    name: 'test project',
+                    files: [
+                        { name: 'demo_video',  type: 'video' },
+                        { name: 'screenshot',  type: 'image' },
+                        { name: 'readme',      type: 'text',     content: 'cheeseburger' },
+                        { name: 'Website',     type: 'shortcut', url: 'https://google.com' }
+                    ]
+                }
+            ]
+        },
+        'D:': {
+            label: 'Archive (D:)',
+            folders: []
+        }
+    };
+
+    // Recycle Bin (special location, not a drive)
+    const recycleBin = {
+        label: 'Recycle Bin',
+        files: [
+            { name: 'secrets', type: 'text', content: 'applesauce' }
+        ]
+    };
+
+    const explorerTree = document.getElementById('explorer-tree');
+    const explorerFileList = document.getElementById('explorer-file-list');
+    const explorerStatus = document.getElementById('explorer-status');
+    const explorerTitle = document.getElementById('explorer-title');
+
+    let currentDrive = 'C:';
+    let currentFolder = null; // null = drive root, string = folder name
+
+    // --- Build tree view ---
+    const buildTree = () => {
+        if (!explorerTree) return;
+        explorerTree.innerHTML = '';
+        const indent = (level) => `padding-left: ${4 + level * 16}px;`;
+
+        // Desktop
+        const addItem = (icon, label, level, opts = {}) => {
+            const div = document.createElement('div');
+            div.className = 'explorer-tree-item' + (opts.disabled ? ' disabled' : '') + (opts.selected ? ' selected' : '');
+            div.style.cssText = indent(level);
+            div.innerHTML = `<img src="${icon}" alt="">${label}`;
+            if (opts.onClick && !opts.disabled) {
+                div.addEventListener('click', opts.onClick);
+                div.style.cursor = 'pointer';
+            }
+            explorerTree.appendChild(div);
+            return div;
+        };
+
+        addItem('assets/desktop.png', 'Desktop', 0, { disabled: true });
+        addItem('assets/computer.png', 'My Computer', 1, { disabled: true });
+        addItem('assets/floppy35.png', '3½ Floppy (A:)', 2, { disabled: true });
+
+        // Drives
+        Object.keys(projectData).forEach(driveKey => {
+            const drive = projectData[driveKey];
+            const isSelected = currentDrive === driveKey && currentFolder === null;
+            const driveItem = addItem('assets/drive.png', drive.label, 2, {
+                selected: isSelected,
+                onClick: () => { currentDrive = driveKey; currentFolder = null; buildTree(); renderFileList(); }
+            });
+
+            // Show folders under this drive if it's the current drive
+            if (currentDrive === driveKey) {
+                drive.folders.forEach(folder => {
+                    const isFolderSelected = currentFolder === folder.name;
+                    addItem('assets/folder.png', folder.name, 3, {
+                        selected: isFolderSelected,
+                        onClick: () => { currentFolder = folder.name; buildTree(); renderFileList(); }
+                    });
+                });
+            }
+        });
+
+        // Greyed-out items
+        addItem('assets/drive.png', '(E:)', 2, { disabled: true });
+        addItem('assets/drive.png', '(F:)', 2, { disabled: true });
+        addItem('assets/computer.png', 'Printers', 1, { disabled: true });
+        addItem('assets/computer.png', 'Control Panel', 1, { disabled: true });
+        addItem('assets/computer.png', 'Dial-Up Networking', 1, { disabled: true });
+        addItem('assets/computer.png', 'Scheduled Tasks', 1, { disabled: true });
+        addItem('assets/recycling.png', 'Recycle Bin', 1, {
+            selected: currentDrive === 'recycle',
+            onClick: () => { currentDrive = 'recycle'; currentFolder = null; buildTree(); renderFileList(); }
+        });
+    };
+
+    // --- Render the right-side file list ---
+    const renderFileList = () => {
+        if (!explorerFileList) return;
+        explorerFileList.innerHTML = '';
+
+        const drive = projectData[currentDrive];
+
+        // Update title bar
+        if (explorerTitle) {
+            let path;
+            if (currentDrive === 'recycle') {
+                path = 'Recycle Bin';
+            } else if (drive) {
+                path = currentFolder ? `${drive.label}\\${currentFolder}` : drive.label;
+            }
+            explorerTitle.innerHTML = `<img src="assets/explorer.png" alt="" style="width:14px;height:14px;margin-right:4px;vertical-align:middle;image-rendering:pixelated;">Exploring - ${path}`;
+        }
+
+        let items = [];
+
+        if (currentDrive === 'recycle') {
+            // Show recycle bin contents
+            items = recycleBin.files.map(f => ({ ...f }));
+        } else if (!drive) {
+            return;
+        } else if (currentFolder === null) {
+            // Show folders in the drive root
+            items = drive.folders.map(f => ({ name: f.name, type: 'folder', folderRef: f }));
+        } else {
+            // Show files in the selected folder
+            const folder = drive.folders.find(f => f.name === currentFolder);
+            if (folder) {
+                items = folder.files.map(f => ({ ...f }));
+            }
+        }
+
+        items.forEach(item => {
+            const def = fileTypeDefs[item.type];
+            const displayName = item.type === 'folder' ? item.name : (item.name + def.ext);
+
+            const row = document.createElement('div');
+            row.className = 'explorer-file-row';
+
+            // Build icon HTML (with overlay for shortcuts)
+            let iconHtml;
+            if (item.type === 'shortcut') {
+                iconHtml = `<span style="position:relative;display:inline-block;width:16px;height:16px;margin-right:3px;flex-shrink:0;"><img src="${def.icon}" style="width:16px;height:16px;position:absolute;top:0;left:0;"><img src="${def.overlay}" style="width:16px;height:16px;position:absolute;top:0;left:0;"></span>`;
+            } else {
+                iconHtml = `<img src="${def.icon}" alt="">`;
+            }
+
+            row.innerHTML = `
+                <span class="file-name">${iconHtml}${displayName}</span>
+                <span class="file-size">${def.size}</span>
+                <span class="file-type">${def.typeName}</span>
+            `;
+
+            // Click to select
+            row.addEventListener('click', () => {
+                explorerFileList.querySelectorAll('.explorer-file-row').forEach(r => r.classList.remove('selected'));
+                row.classList.add('selected');
+            });
+
+            // Double-click to open
+            row.addEventListener('dblclick', () => {
+                if (item.type === 'folder') {
+                    currentFolder = item.name;
+                    buildTree();
+                    renderFileList();
+                } else {
+                    openFile(item);
+                }
+            });
+
+            explorerFileList.appendChild(row);
+        });
+
+        if (explorerStatus) {
+            explorerStatus.textContent = `${items.length} object(s)`;
+        }
+    };
+
+    // --- Open a file from the explorer ---
+    const openFile = (file) => {
+        const def = fileTypeDefs[file.type];
+        const displayName = file.name + def.ext;
+
+        if (file.type === 'shortcut') {
+            window.open(file.url, '_blank');
+            return;
+        }
+
+        if (file.type === 'video' || file.type === 'image') {
+            // Update the file viewer window content
+            const titleEl = document.getElementById('file-viewer-title');
+            const imgEl = document.getElementById('file-viewer-img');
+            if (titleEl) titleEl.innerHTML = `<img src="${def.icon}" alt="" style="width:14px;height:14px;margin-right:4px;vertical-align:middle;image-rendering:pixelated;">${displayName}`;
+            if (imgEl) imgEl.src = 'assets/placeholder.png';
+
+            // Update registry title for taskbar
+            const viewerDef = appRegistry.find(a => a.windowId === 'file-viewer-window');
+            if (viewerDef) viewerDef.title = displayName;
+
+            // If already open, close first to reset taskbar button text
+            if (openApps.has('file-viewer-window')) {
+                const existing = openApps.get('file-viewer-window');
+                existing.btn.remove();
+                openApps.delete('file-viewer-window');
+            }
+            openApp(viewerDef);
+        }
+
+        if (file.type === 'text') {
+            const titleEl = document.getElementById('file-text-title');
+            const textArea = document.getElementById('file-text-area');
+            if (titleEl) titleEl.innerHTML = `<img src="assets/notepad.png" alt="" style="width:14px;height:14px;margin-right:4px;vertical-align:middle;image-rendering:pixelated;">${displayName} - Notepad`;
+            if (textArea) textArea.value = file.content || '';
+
+            const textDef = appRegistry.find(a => a.windowId === 'file-text-window');
+            if (textDef) textDef.title = displayName;
+
+            if (openApps.has('file-text-window')) {
+                const existing = openApps.get('file-text-window');
+                existing.btn.remove();
+                openApps.delete('file-text-window');
+            }
+            openApp(textDef);
+        }
+    };
+
+    // Initialize explorer on load
+    buildTree();
+    renderFileList();
+
 });

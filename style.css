@@ -253,3 +253,111 @@ body, html {
 #cursor-outline.square {
     border-radius: 0;
 }
+
+/* Explorer Styles */
+.explorer-panel-header {
+    background-color: #c0c0c0;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-bottom: 1px solid #808080;
+}
+.explorer-tree {
+    background-color: #fff;
+    box-shadow: inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px;
+    font-size: 11px;
+    user-select: none;
+}
+.explorer-tree-item {
+    display: flex;
+    align-items: center;
+    padding: 1px 2px;
+    cursor: default;
+    white-space: nowrap;
+}
+.explorer-tree-item img {
+    width: 16px;
+    height: 16px;
+    margin-right: 3px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+.explorer-tree-item.disabled {
+    color: #808080;
+}
+.explorer-tree-item.selected {
+    background-color: #000080;
+    color: #fff;
+}
+.explorer-tree-item.selected.disabled {
+    background-color: transparent;
+    color: #808080;
+}
+.explorer-list-header {
+    display: flex;
+    background-color: #c0c0c0;
+    font-size: 11px;
+    font-weight: bold;
+    border-bottom: 1px solid #808080;
+}
+.explorer-list-header span {
+    padding: 2px 4px;
+    border-right: 1px solid #808080;
+    border-left: 1px solid #fff;
+}
+.explorer-file-list {
+    background-color: #fff;
+    box-shadow: inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 11px;
+    user-select: none;
+}
+.explorer-file-row {
+    display: flex;
+    align-items: center;
+    padding: 1px 2px;
+    cursor: default;
+}
+.explorer-file-row:hover {
+    background-color: #e8e8e8;
+}
+.explorer-file-row.selected {
+    background-color: #000080;
+    color: #fff;
+}
+.explorer-file-row img {
+    width: 16px;
+    height: 16px;
+    margin-right: 3px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+.explorer-file-row .file-name {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.explorer-file-row .file-size {
+    flex: 1;
+    padding-left: 4px;
+}
+.explorer-file-row .file-type {
+    flex: 1.5;
+    padding-left: 4px;
+}
+.explorer-status-bar {
+    background-color: #c0c0c0;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-top: 1px solid #808080;
+    box-shadow: inset -1px -1px #fff, inset 1px 1px #0a0a0a;
+    margin: 2px;
+}
