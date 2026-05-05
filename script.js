@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Each app: { windowId, iconSrc, title, desktopIconId }
     const appRegistry = [
         { windowId: 'blank-window', iconSrc: 'assets/paint.png', title: 'Greetings!', desktopIconId: 'paint-icon', openByDefault: true },
-        { windowId: 'notepad-window', iconSrc: 'assets/notepad.png', title: 'About Me', desktopIconId: 'notepad-icon', openByDefault: false }
+        { windowId: 'notepad-window', iconSrc: 'assets/notepad.png', title: 'About Me', desktopIconId: 'notepad-icon', openByDefault: true },
+        { windowId: 'me-window', iconSrc: 'assets/camera.png', title: 'Me', desktopIconId: 'camera-icon', openByDefault: true }
     ];
 
     // Track which apps are currently "open" (have taskbar presence)
@@ -102,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Paint window position
     const paintWindow = document.getElementById('blank-window');
+    const meWindow = document.getElementById('me-window');
     const initPaintWindow = () => {
         const minW = 320;
         const minH = 400;
@@ -113,6 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
         paintWindow.style.height = `${finalH}px`;
         paintWindow.style.left = `${(window.innerWidth - finalW) / 2}px`;
         paintWindow.style.top = `${(window.innerHeight - finalH) / 2}px`;
+
+        if (meWindow) {
+            // Position "Me" window in the upper right of Greetings
+            // Offset it slightly so it looks layered
+            meWindow.style.left = `${(window.innerWidth - finalW) / 2 + finalW - 100}px`;
+            meWindow.style.top = `${(window.innerHeight - finalH) / 2 - 20}px`;
+        }
     };
     initPaintWindow();
 
@@ -122,6 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
             openApp(app);
         }
     });
+    
+    // Ensure Paint is at the front on startup
+    if (paintWindow) bringToFront(paintWindow);
     
     // Select icon on click
     desktopIcons.forEach(icon => {
@@ -504,16 +516,23 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
         };
 
-        // Eraser draws with square strokes
+        // Eraser draws with static square shapes, avoiding rotation
         const drawSquareLine = (x1, y1, x2, y2, color, size) => {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = size;
-            ctx.lineCap = 'square';
-            ctx.lineJoin = 'miter';
-            ctx.beginPath();
-            ctx.moveTo(x1, y1);
-            ctx.lineTo(x2, y2);
-            ctx.stroke();
+            ctx.fillStyle = color;
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const distance = Math.max(Math.abs(dx), Math.abs(dy));
+            
+            if (distance === 0) {
+                ctx.fillRect(x1 - size / 2, y1 - size / 2, size, size);
+                return;
+            }
+
+            for (let i = 0; i <= distance; i++) {
+                const x = x1 + (dx * i) / distance;
+                const y = y1 + (dy * i) / distance;
+                ctx.fillRect(Math.round(x - size / 2), Math.round(y - size / 2), size, size);
+            }
         };
 
         // Airbrush sprays random dots in a radius
@@ -897,6 +916,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 freeRamIcon.style.right = '0px';
                 freeRamIcon.style.bottom = '40px';
             }
+        });
+    }
+
+    // ==========================================
+    // 5. CRT Display Mode Toggle
+    // ==========================================
+    const displayIcon = document.getElementById('display-icon');
+    const scanlinesOverlay = document.getElementById('scanlines-overlay');
+    let crtEnabled = true;
+
+    if (displayIcon && scanlinesOverlay) {
+        displayIcon.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            crtEnabled = !crtEnabled;
+            scanlinesOverlay.style.display = crtEnabled ? 'block' : 'none';
         });
     }
 });
