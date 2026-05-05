@@ -9,18 +9,104 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Desktop Icon Logic
     const desktopIcons = document.querySelectorAll('.desktop-icon');
-    const paintWindow = document.getElementById('blank-window');
-    const taskbarPaintBtn = document.getElementById('taskbar-paint');
-    const closeBtn = paintWindow.querySelector('button[aria-label="Close"]');
-    const minimizeBtn = paintWindow.querySelector('button[aria-label="Minimize"]');
+    const taskbarApps = document.getElementById('taskbar-apps');
 
-    // Initialize Paint window
+    // --- Dynamic App Registry ---
+    // Each app: { windowId, iconSrc, title, desktopIconId }
+    const appRegistry = [
+        { windowId: 'blank-window', iconSrc: 'assets/paint.png', title: 'Greetings!', desktopIconId: 'paint-icon', openByDefault: true },
+        { windowId: 'notepad-window', iconSrc: 'assets/notepad.png', title: 'About Me', desktopIconId: 'notepad-icon', openByDefault: false }
+    ];
+
+    // Track which apps are currently "open" (have taskbar presence)
+    const openApps = new Map(); // windowId -> { btn, windowEl }
+
+    const bringToFront = (windowEl) => {
+        const windows = document.querySelectorAll('.draggable-window');
+        windows.forEach(w => w.style.zIndex = 10);
+        windowEl.style.zIndex = 100;
+        // Update taskbar active states
+        openApps.forEach((app, id) => {
+            if (app.windowEl === windowEl) {
+                app.btn.classList.add('active');
+            } else {
+                app.btn.classList.remove('active');
+            }
+        });
+    };
+
+    const openApp = (appDef) => {
+        const windowEl = document.getElementById(appDef.windowId);
+        if (!windowEl) return;
+
+        if (openApps.has(appDef.windowId)) {
+            // Already open, just show and bring to front
+            windowEl.style.display = 'flex';
+            bringToFront(windowEl);
+            return;
+        }
+
+        // Create taskbar button
+        const btn = document.createElement('button');
+        btn.className = 'taskbar-window-btn active';
+        btn.innerHTML = `<img src="${appDef.iconSrc}" alt="${appDef.title}"> ${appDef.title}`;
+        taskbarApps.appendChild(btn);
+
+        // Show the window
+        windowEl.style.display = 'flex';
+        bringToFront(windowEl);
+
+        // Store reference
+        openApps.set(appDef.windowId, { btn, windowEl });
+
+        // Taskbar button click logic
+        btn.addEventListener('click', () => {
+            if (windowEl.style.display === 'none') {
+                // Minimized: restore
+                windowEl.style.display = 'flex';
+                bringToFront(windowEl);
+            } else if (windowEl.style.zIndex == 100) {
+                // Currently focused: minimize
+                windowEl.style.display = 'none';
+                btn.classList.remove('active');
+            } else {
+                // Open but not focused: bring to front
+                bringToFront(windowEl);
+            }
+        });
+
+        // Close button
+        const closeBtn = windowEl.querySelector('button[aria-label="Close"]');
+        if (closeBtn) {
+            // Remove old listeners by cloning
+            const newClose = closeBtn.cloneNode(true);
+            closeBtn.parentNode.replaceChild(newClose, closeBtn);
+            newClose.addEventListener('click', () => {
+                windowEl.style.display = 'none';
+                btn.remove();
+                openApps.delete(appDef.windowId);
+            });
+        }
+
+        // Minimize button
+        const minBtn = windowEl.querySelector('button[aria-label="Minimize"]');
+        if (minBtn) {
+            const newMin = minBtn.cloneNode(true);
+            minBtn.parentNode.replaceChild(newMin, minBtn);
+            newMin.addEventListener('click', () => {
+                windowEl.style.display = 'none';
+                btn.classList.remove('active');
+            });
+        }
+    };
+
+    // Initialize Paint window position
+    const paintWindow = document.getElementById('blank-window');
     const initPaintWindow = () => {
         const minW = 320;
         const minH = 400;
         
         const finalW = Math.max(minW, window.innerWidth * 0.30);
-        
         const finalH = Math.max(minH, window.innerHeight * 0.70); 
         
         paintWindow.style.width = `${finalW}px`;
@@ -29,6 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
         paintWindow.style.top = `${(window.innerHeight - finalH) / 2}px`;
     };
     initPaintWindow();
+
+    // Open default apps
+    appRegistry.forEach(app => {
+        if (app.openByDefault) {
+            openApp(app);
+        }
+    });
     
     // Select icon on click
     desktopIcons.forEach(icon => {
@@ -40,17 +133,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Double click logic
         icon.addEventListener('dblclick', () => {
-            if (icon.id === 'paint-icon') {
-                paintWindow.style.display = 'flex';
-                taskbarPaintBtn.style.display = 'flex';
-                // Bring to front
-                paintWindow.style.zIndex = 100;
-                taskbarPaintBtn.classList.add('active');
-                // trigger resize observer fix by tweaking size slightly
-                const width = parseInt(paintWindow.style.width);
-                paintWindow.style.width = width + 1 + 'px';
-                setTimeout(() => { paintWindow.style.width = width + 'px'; }, 10);
-            } else if (icon.id === 'ie-icon') {
+            // Check if it's an app icon
+            const appDef = appRegistry.find(a => a.desktopIconId === icon.id);
+            if (appDef) {
+                openApp(appDef);
+                return;
+            }
+            // External link icons
+            if (icon.id === 'ie-icon') {
                 window.open('https://www.linkedin.com/in/matthewwangwty/', '_blank');
             } else if (icon.id === 'github-icon') {
                 window.open('https://github.com/matthewwangwty', '_blank');
@@ -61,37 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Deselect if clicking desktop (outside icons)
     document.getElementById('desktop').addEventListener('mousedown', (e) => {
         desktopIcons.forEach(icon => icon.classList.remove('selected'));
-    });
-
-    // Close button logic
-    closeBtn.addEventListener('click', () => {
-        paintWindow.style.display = 'none';
-        taskbarPaintBtn.style.display = 'none';
-    });
-
-    // Minimize button logic
-    minimizeBtn.addEventListener('click', () => {
-        paintWindow.style.display = 'none';
-        taskbarPaintBtn.classList.remove('active');
-    });
-
-    // Taskbar toggle logic
-    taskbarPaintBtn.addEventListener('click', () => {
-        if (paintWindow.style.display === 'none') {
-            paintWindow.style.display = 'flex';
-            paintWindow.style.zIndex = 100;
-            taskbarPaintBtn.classList.add('active');
-        } else {
-            if (paintWindow.style.zIndex == 100) {
-                // Currently focused, so minimize
-                paintWindow.style.display = 'none';
-                taskbarPaintBtn.classList.remove('active');
-            } else {
-                // Open but not focused, bring to front
-                paintWindow.style.zIndex = 100;
-                taskbarPaintBtn.classList.add('active');
-            }
-        }
     });
 
     // Setup logic for all draggable windows
@@ -113,8 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dragOffsetY = e.clientY - rect.top;
             
             // Bring to front
-            windows.forEach(w => w.style.zIndex = 10);
-            win.style.zIndex = 100;
+            bringToFront(win);
         });
 
         // Resizing Logic
@@ -136,8 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 startLeft = rect.left;
                 
                 // Bring to front
-                windows.forEach(w => w.style.zIndex = 10);
-                win.style.zIndex = 100;
+                bringToFront(win);
                 e.preventDefault(); // Prevent text selection
             });
         });
@@ -833,6 +890,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 if (hideCursorStyle.parentNode) document.head.removeChild(hideCursorStyle);
                 fakeCursorObj.style.display = 'none';
+                
+                // Restore original position
+                freeRamIcon.style.top = '';
+                freeRamIcon.style.left = '';
+                freeRamIcon.style.right = '0px';
+                freeRamIcon.style.bottom = '40px';
             }
         });
     }

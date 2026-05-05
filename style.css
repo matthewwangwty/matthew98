@@ -52,6 +52,31 @@ body, html {
     margin: 0 4px;
 }
 
+.taskbar-window-btn {
+    display: flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: bold;
+    max-width: 160px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+.taskbar-window-btn img {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+.taskbar-window-btn.active {
+    box-shadow: inset -1px -1px #dfdfdf, inset 1px 1px #0a0a0a, inset -2px -2px #c0c0c0, inset 2px 2px #808080;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAEUlEQVQIW2NkYPj/n4EBFAAAbwsD/cMQnCIAAAAASUVORK5CYII=');
+    font-weight: bold;
+}
+
 /* Base styles for draggable windows */
 .draggable-window {
     box-shadow: 1px 1px 0 #000;
