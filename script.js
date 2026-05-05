@@ -201,6 +201,88 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastX = 0;
     let lastY = 0;
 
+    // --- Custom Cursor System ---
+    // Generate cursor data URLs from the tools sprite sheet
+    const toolCursors = {}; // { toolName: 'url(...) x y, auto' }
+    const cursorOutline = document.getElementById('cursor-outline');
+    let isOverCanvas = false;
+
+    // Sprite positions: toolName -> x offset in sprite
+    const toolSpriteOffsets = {
+        'eraser': 32,
+        'fill': 48,
+        'eyedropper': 64,
+        'pencil': 96,
+        'brush': 112,
+        'airbrush': 128
+    };
+
+    // Load the tools sprite and generate individual cursor images
+    const toolsSprite = new Image();
+    toolsSprite.onload = () => {
+        const size = 16;
+        Object.entries(toolSpriteOffsets).forEach(([tool, offsetX]) => {
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = size;
+            offCanvas.height = size;
+            const offCtx = offCanvas.getContext('2d');
+
+            // Draw the icon from the sprite
+            offCtx.drawImage(toolsSprite, offsetX, 0, size, size, 0, 0, size, size);
+
+            // Convert to black and white
+            const imgData = offCtx.getImageData(0, 0, size, size);
+            const d = imgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                if (d[i + 3] < 128) continue; // skip transparent pixels
+                const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                const bw = gray < 128 ? 0 : 255;
+                d[i] = bw;
+                d[i + 1] = bw;
+                d[i + 2] = bw;
+            }
+            offCtx.putImageData(imgData, 0, 0);
+
+            const dataUrl = offCanvas.toDataURL('image/png');
+            // Hotspot at bottom-left (0, 15) so the icon appears to the top-right of the click point
+            // For pencil, shift it left by setting the hotspot X to 4
+            const hotspotX = tool === 'pencil' ? 4 : 0;
+            toolCursors[tool] = `url(${dataUrl}) ${hotspotX} 15, auto`;
+        });
+
+        // Apply initial cursor for pencil
+        updateCanvasCursor();
+    };
+    toolsSprite.src = 'assets/tools.png';
+
+    // Update the canvas cursor based on the current tool
+    const updateCanvasCursor = () => {
+        const canvas = document.getElementById('paint-canvas');
+        if (!canvas) return;
+
+        if (currentTool === 'brush' || currentTool === 'eraser') {
+            // Hide cursor, show outline overlay instead
+            canvas.style.cursor = 'none';
+        } else if (toolCursors[currentTool]) {
+            canvas.style.cursor = toolCursors[currentTool];
+        } else {
+            canvas.style.cursor = 'crosshair';
+        }
+    };
+
+    // Update the outline overlay size and shape
+    const updateCursorOutline = () => {
+        if (currentTool === 'brush') {
+            cursorOutline.className = 'circle';
+            cursorOutline.style.width = brushSize + 'px';
+            cursorOutline.style.height = brushSize + 'px';
+        } else if (currentTool === 'eraser') {
+            cursorOutline.className = 'square';
+            cursorOutline.style.width = brushSize + 'px';
+            cursorOutline.style.height = brushSize + 'px';
+        }
+    };
+
     // --- Tool Selection Logic ---
     const toolBtns = document.querySelectorAll('.tool-btn');
     const toolOptionsPanel = document.getElementById('tool-options');
@@ -233,15 +315,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentTool = toolMap[title];
             }
 
-            // Update canvas cursor based on tool
-            if (canvas) {
-                if (currentTool === 'eyedropper') {
-                    canvas.style.cursor = 'crosshair';
-                } else if (currentTool === 'eraser') {
-                    canvas.style.cursor = 'cell';
-                } else {
-                    canvas.style.cursor = 'crosshair';
-                }
+            // Update cursor
+            updateCanvasCursor();
+            updateCursorOutline();
+
+            // Hide outline if not brush/eraser
+            if (currentTool !== 'brush' && currentTool !== 'eraser') {
+                cursorOutline.style.display = 'none';
             }
         });
     });
@@ -260,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sizeOptions.forEach(o => o.classList.remove('selected'));
             opt.classList.add('selected');
             brushSize = parseInt(opt.dataset.size);
+            updateCursorOutline();
         });
     });
 
@@ -415,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentTool = 'pencil';
             toolBtns.forEach(b => b.classList.remove('active'));
             if (pencilBtn) pencilBtn.classList.add('active');
-            canvas.style.cursor = 'crosshair';
+            updateCanvasCursor();
         };
 
         const getToolSize = () => {
@@ -579,6 +660,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         canvas.addEventListener('mousemove', (e) => {
+            // Track cursor outline position for brush/eraser
+            if ((currentTool === 'brush' || currentTool === 'eraser') && isOverCanvas) {
+                cursorOutline.style.left = e.clientX + 'px';
+                cursorOutline.style.top = e.clientY + 'px';
+            }
+
             if (!isDrawing) return;
             if (!drawableTools.includes(currentTool)) return;
 
@@ -596,6 +683,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             lastX = pos.x;
             lastY = pos.y;
+        });
+
+        // Show/hide cursor outline on canvas enter/leave
+        canvas.addEventListener('mouseenter', () => {
+            isOverCanvas = true;
+            if (currentTool === 'brush' || currentTool === 'eraser') {
+                updateCursorOutline();
+                cursorOutline.style.display = 'block';
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isOverCanvas = false;
+            cursorOutline.style.display = 'none';
         });
 
         // Stop drawing on mouseup anywhere (not just canvas) to handle edge cases

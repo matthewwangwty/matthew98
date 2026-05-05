@@ -210,7 +210,24 @@ body, html {
     outline-offset: -1px;
 }
 
-/* Canvas cursor */
+/* Canvas cursor - set dynamically via JS */
 #paint-canvas {
     cursor: crosshair;
+}
+
+/* Brush/Eraser outline cursor overlay */
+#cursor-outline {
+    position: fixed;
+    pointer-events: none;
+    z-index: 99999;
+    border: 1px solid #000;
+    display: none;
+    box-sizing: border-box;
+    transform: translate(-50%, -50%);
+}
+#cursor-outline.circle {
+    border-radius: 50%;
+}
+#cursor-outline.square {
+    border-radius: 0;
 }
