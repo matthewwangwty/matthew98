@@ -14,17 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = paintWindow.querySelector('button[aria-label="Close"]');
     const minimizeBtn = paintWindow.querySelector('button[aria-label="Minimize"]');
 
-    // Initialize Paint window to middle third of screen (scaled up by 30%)
+    // Initialize Paint window
     const initPaintWindow = () => {
         const minW = 320;
-        const minH = 640; // Restored the 640px minimum requested earlier
+        const minH = 400;
         
-        // Calculate 1/3 of screen scaled up by 30% (which is ~43% of screen)
-        const finalW = Math.max(minW, window.innerWidth * 0.43);
+        const finalW = Math.max(minW, window.innerWidth * 0.30);
         
-        // Screens are typically much wider than tall. 1/3 height was hitting the minimum clamp. 
-        // We use 65% of screen height here so it actually scales vertically by a visible 30% above the clamp.
-        const finalH = Math.max(minH, window.innerHeight * 0.65); 
+        const finalH = Math.max(minH, window.innerHeight * 0.70); 
         
         paintWindow.style.width = `${finalW}px`;
         paintWindow.style.height = `${finalH}px`;
@@ -154,29 +151,25 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (isResizing) {
                 const minWidth = 320;
-                const minHeight = 640;
+                const minHeight = 400;
 
                 if (currentHandle.includes('e')) {
-                    let newWidth = startWidth + (e.clientX - startX);
-                    if (newWidth > minWidth) win.style.width = `${newWidth}px`;
+                    let newWidth = Math.max(minWidth, startWidth + (e.clientX - startX));
+                    win.style.width = `${newWidth}px`;
                 }
                 if (currentHandle.includes('s')) {
-                    let newHeight = startHeight + (e.clientY - startY);
-                    if (newHeight > minHeight) win.style.height = `${newHeight}px`;
+                    let newHeight = Math.max(minHeight, startHeight + (e.clientY - startY));
+                    win.style.height = `${newHeight}px`;
                 }
                 if (currentHandle.includes('w')) {
-                    let newWidth = startWidth - (e.clientX - startX);
-                    if (newWidth > minWidth) {
-                        win.style.width = `${newWidth}px`;
-                        win.style.left = `${startLeft + (e.clientX - startX)}px`;
-                    }
+                    let newWidth = Math.max(minWidth, startWidth - (e.clientX - startX));
+                    win.style.width = `${newWidth}px`;
+                    win.style.left = `${startLeft + (startWidth - newWidth)}px`;
                 }
                 if (currentHandle.includes('n')) {
-                    let newHeight = startHeight - (e.clientY - startY);
-                    if (newHeight > minHeight) {
-                        win.style.height = `${newHeight}px`;
-                        win.style.top = `${startTop + (e.clientY - startY)}px`;
-                    }
+                    let newHeight = Math.max(minHeight, startHeight - (e.clientY - startY));
+                    win.style.height = `${newHeight}px`;
+                    win.style.top = `${startTop + (startHeight - newHeight)}px`;
                 }
             }
         });
@@ -196,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTool = 'pencil'; // Default to pencil
     let primaryColor = '#000000';
     let secondaryColor = '#FFFFFF';
-    let brushSize = 2;
+    let brushSize = 5;
     let isDrawing = false;
     let lastX = 0;
     let lastY = 0;
@@ -322,6 +315,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Hide outline if not brush/eraser
             if (currentTool !== 'brush' && currentTool !== 'eraser') {
                 cursorOutline.style.display = 'none';
+            }
+
+            // Hide/Show size options panel based on tool
+            if (currentTool === 'pencil' || currentTool === 'fill' || currentTool === 'eyedropper') {
+                toolOptionsPanel.style.visibility = 'hidden';
+            } else {
+                toolOptionsPanel.style.visibility = 'visible';
             }
         });
     });
