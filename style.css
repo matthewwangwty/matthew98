@@ -12,9 +12,6 @@ body, html {
     width: 100vw;
     height: 100vh;
     background-color: #008080; /* Classic Windows 98 Teal Desktop Background */
-    background-image: url('assets/test_background.png');
-    background-size: cover;
-    background-position: center;
     position: relative;
     overflow: hidden;
 }
@@ -175,27 +172,27 @@ body, html {
 /* Desktop Icons */
 .desktop-icon {
     position: absolute;
-    width: 90px;
+    width: 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: default;
-    margin: 30px;
+    margin: 15px;
 }
 .desktop-icon img {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 4px;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 2px;
     image-rendering: pixelated;
 }
 .desktop-icon span {
     color: white;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: bold;
     text-shadow: 1px 1px 0 #000;
     text-align: center;
     background-color: transparent;
-    padding: 2px 6px;
+    padding: 1px 4px;
 }
 .desktop-icon.selected span {
     background-color: #000080;

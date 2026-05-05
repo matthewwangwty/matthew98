@@ -12,21 +12,31 @@
 <body>
     <div id="desktop">
         <!-- Desktop icons -->
-        <div class="desktop-icon" id="paint-icon" style="top: 0; left: 0;">
+        <div class="desktop-icon" id="recycle-icon" style="top: 0; left: 0;">
+            <img src="assets/recycling.png" alt="Recycle Bin">
+            <span>Recycle Bin</span>
+        </div>
+        <div class="desktop-icon" id="paint-icon" style="top: 70px; left: 0;">
             <img src="assets/paint.png" alt="MS Paint">
             <span>Greetings!</span>
         </div>
-        <div class="desktop-icon" id="ie-icon" style="top: 0; right: 0;">
-            <img src="assets/internet_explorer.png" alt="LinkedIn">
-            <span>LinkedIn</span>
-        </div>
-        <div class="desktop-icon" id="github-icon" style="top: 130px; right: 0;">
-            <img src="assets/network_neighborhood.png" alt="GitHub">
-            <span>GitHub</span>
-        </div>
-        <div class="desktop-icon" id="notepad-icon" style="top: 130px; left: 0;">
+        <div class="desktop-icon" id="notepad-icon" style="top: 140px; left: 0;">
             <img src="assets/notepad.png" alt="Notepad">
             <span>About Me</span>
+        </div>
+        <div class="desktop-icon" id="ie-icon" style="top: 0; right: 0;">
+            <div style="position: relative; width: 40px; height: 40px; margin-bottom: 2px;">
+                <img src="assets/internet_explorer.png" alt="LinkedIn" style="margin: 0; position: absolute; top: 0; left: 0;">
+                <img src="assets/shortcut.png" alt="Shortcut" style="position: absolute; top: 0; left: 0; width: 40px; height: 40px; margin: 0; z-index: 2; image-rendering: pixelated;">
+            </div>
+            <span>LinkedIn</span>
+        </div>
+        <div class="desktop-icon" id="github-icon" style="top: 70px; right: 0;">
+            <div style="position: relative; width: 40px; height: 40px; margin-bottom: 2px;">
+                <img src="assets/network_neighborhood.png" alt="GitHub" style="margin: 0; position: absolute; top: 0; left: 0;">
+                <img src="assets/shortcut.png" alt="Shortcut" style="position: absolute; top: 0; left: 0; width: 40px; height: 40px; margin: 0; z-index: 2; image-rendering: pixelated;">
+            </div>
+            <span>GitHub</span>
         </div>
         <div class="desktop-icon" id="freeram-icon" style="bottom: 40px; right: 0;">
             <img src="assets/agent.png" alt="FREE_RAM.exe">
@@ -44,7 +54,7 @@
             <div class="resize-handle se"></div>
             <div class="resize-handle sw"></div>
             <div class="title-bar">
-                <div class="title-bar-text">Greetings!</div>
+                <div class="title-bar-text"><img src="assets/paint.png" alt="" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle; image-rendering: pixelated;">Greetings!</div>
                 <div class="title-bar-controls">
                     <button aria-label="Minimize"></button>
                     <button aria-label="Maximize"></button>
@@ -136,7 +146,7 @@
             <div class="resize-handle se"></div>
             <div class="resize-handle sw"></div>
             <div class="title-bar">
-                <div class="title-bar-text">About Me - Notepad</div>
+                <div class="title-bar-text"><img src="assets/notepad.png" alt="" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle; image-rendering: pixelated;">About Me - Notepad</div>
                 <div class="title-bar-controls">
                     <button aria-label="Minimize"></button>
                     <button aria-label="Maximize"></button>
